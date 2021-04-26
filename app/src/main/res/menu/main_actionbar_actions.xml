@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <item
+        android:id="@+id/selectAction"
+        android:title="@string/string_selectAction"
+        android:icon="@drawable/ic_check_circle"
+        app:showAsAction="always"/>
+
+</menu>

@@ -1,3 +1,9 @@
 <resources>
     <string name="app_name">MyNotePad</string>
+    <string name="string_addImageAction">사진추가</string>
+    <string name="string_saveAction">저장하기</string>
+    <string name="string_selectAction">선택하기</string>
+    <string name="open">open</string>
+    <string name="close">close</string>
+    <string name="trash">휴지통</string>
 </resources>
