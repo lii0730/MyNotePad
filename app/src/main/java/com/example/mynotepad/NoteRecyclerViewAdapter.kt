@@ -43,15 +43,16 @@ class NoteRecyclerViewAdapter(val activity: AppCompatActivity ,var memoList: Lis
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
         holder.item_title.text = memoList.get(position).title
         holder.item_text.text = memoList.get(position).text
+        val memoId = memoList.get(position).id
 //        val format = SimpleDateFormat("yyyy-mm-dd HH:mm:ss")
 //        val currTime = format.format(Calendar.getInstance().time)
 //        holder.item_saveTime.text = "$currTime"
 
         holder.item.setOnClickListener {
             //TODO: 항목을 클릭했을 때 세부 내용으로 넘어감
+            val stringArray = arrayListOf<String>(holder.item_title.text.toString(), holder.item_text.text.toString(), memoId.toString())
             val intent = Intent(holder.itemView.context, DetailActivity::class.java)
-            intent.putExtra("title", holder.item_title.text)
-            intent.putExtra("text", holder.item_text.text)
+            intent.putStringArrayListExtra("memoData", stringArray)
             activity.startActivity(intent)
         }
     }

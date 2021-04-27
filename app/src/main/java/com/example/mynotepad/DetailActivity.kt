@@ -6,7 +6,6 @@ import android.os.Bundle
 import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
-import android.view.View
 import android.widget.EditText
 import android.widget.Toast
 import androidx.appcompat.widget.Toolbar
@@ -35,8 +34,8 @@ class DetailActivity : AppCompatActivity() {
         setSupportActionBar(detailActionBar)
         supportActionBar?.title = ""
 
-        if (intent.getStringExtra("title")!!.isNotEmpty() && intent.getStringExtra("text")!!.isNotEmpty()) {
-            updateTextView(intent)
+        if(CheckIntentForUpdate()) {
+            updateDisplayTextView()
         }
     }
 
@@ -50,7 +49,16 @@ class DetailActivity : AppCompatActivity() {
             R.id.saveAction -> {
                 //TODO: 메모 DB 저장 기능
                 if (titleText.text.isNotEmpty() && detailText.text.isNotEmpty()) {
-                    saveToDB(titleText.text.toString(), detailText.text.toString())
+
+                    if(CheckIntentForUpdate()) {
+                        //TODO: 수정 후 저장 작업
+                        val tmpMemo = createTmpMemo()
+                        memoDatabase.memoDao().updateMemo(titleText.text.toString(), detailText.text.toString(), tmpMemo.id)
+                    } else {
+                        //TODO: 신규 메모 저장 작업
+                        saveToDB(titleText.text.toString(), detailText.text.toString())
+                    }
+
                 } else {
                     Toast.makeText(this, "입력한 내용이 없어 메모를 저장하지 않았어요", Toast.LENGTH_SHORT).show()
                 }
@@ -88,9 +96,33 @@ class DetailActivity : AppCompatActivity() {
         }
     }
 
-    private fun updateTextView(intent: Intent) {
-        this.titleText.setText(intent.getStringExtra("title"))
-        this.detailText.setText(intent.getStringExtra("text"))
+    private fun updateDisplayTextView() {
+        val tmpData = intent.getStringArrayListExtra("memoData")
+        this.titleText.setText(tmpData?.get(0))
+        this.detailText.setText(tmpData?.get(1))
     }
+
+    private fun CheckIntentForUpdate() : Boolean {
+        var rval = false
+
+        if (intent.getStringArrayListExtra("memoData") != null) {
+            rval = true
+        }
+
+        return rval
+    }
+
+    private fun createTmpMemo() : Memo{
+        lateinit var needUpdateMemo : Memo
+        if(!intent.getStringArrayListExtra("memoData").isNullOrEmpty()) {
+            val tmpArray = intent.getStringArrayListExtra("memoData") as ArrayList<String>
+            val title = tmpArray[0]
+            val text = tmpArray[1]
+            val id = tmpArray[2].toInt()
+            needUpdateMemo = Memo(id, title, text)
+        }
+        return needUpdateMemo
+    }
+
 
 }

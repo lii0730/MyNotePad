@@ -1,9 +1,6 @@
 package com.example.mynotepad.DAO
 
-import androidx.room.Dao
-import androidx.room.Insert
-import androidx.room.Query
-import androidx.room.Update
+import androidx.room.*
 import com.example.mynotepad.Model.Memo
 
 @Dao
@@ -18,6 +15,9 @@ interface MemoDao {
     @Query("DELETE FROM Memo")
     fun deleteAll()
 
-    @Update
-    fun updateMemo(updateMemo: Memo)
+    @Query("Update Memo Set title = :newTitle, text = :newText Where id == :id")
+    fun updateMemo(newTitle : String?, newText : String?, id:Int?)
+
+    @Delete
+    fun deleteMemo(memo : Memo)
 }
