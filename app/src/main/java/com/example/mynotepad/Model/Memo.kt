@@ -10,5 +10,5 @@ import org.jetbrains.annotations.PropertyKey
 data class Memo(
     @PrimaryKey(autoGenerate = true) val id: Int?,
     @ColumnInfo val title : String?,
-    @ColumnInfo val text : String?
+    @ColumnInfo val text : String?,
 )

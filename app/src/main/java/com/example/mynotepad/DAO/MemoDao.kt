@@ -19,5 +19,5 @@ interface MemoDao {
     fun deleteAll()
 
     @Update
-    fun updateMemoList(memoList : List<Memo>)
+    fun updateMemo(updateMemo: Memo)
 }

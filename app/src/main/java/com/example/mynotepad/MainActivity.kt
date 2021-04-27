@@ -1,6 +1,7 @@
 package com.example.mynotepad
 
 import android.content.Intent
+import android.content.SharedPreferences
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.LayoutDirection
@@ -17,6 +18,8 @@ import androidx.recyclerview.widget.RecyclerView
 import androidx.room.Room
 import com.example.mynotepad.Model.Memo
 import com.google.android.material.floatingactionbutton.FloatingActionButton
+import kotlinx.coroutines.delay
+import java.util.*
 
 class MainActivity : AppCompatActivity() {
 
@@ -42,10 +45,9 @@ class MainActivity : AppCompatActivity() {
         findViewById(R.id.deleteButton)
     }
 
-    private var memoList : List<Memo> = emptyList()
+    private var memoList: List<Memo> = emptyList()
 
-    private var adapter : NoteRecyclerViewAdapter? = null
-
+    private var adapter: NoteRecyclerViewAdapter? = null
 
     companion object {
         lateinit var memoDatabase: appDatabase
@@ -56,19 +58,16 @@ class MainActivity : AppCompatActivity() {
         setContentView(R.layout.activity_main)
         setSupportActionBar(actionBar)
 
-
         bindButton()
         createDatabase()
-
         loadMemoList()
         setAdapter()
     }
 
-    override fun onResume() {
-        super.onResume()
-
+    override fun onRestart() {
+        super.onRestart()
+        loadMemoList()
         setAdapter()
-        adapter?.notifyDataSetChanged()
     }
 
     //TODO: actionbar menu action 생성
@@ -116,29 +115,24 @@ class MainActivity : AppCompatActivity() {
         ).build()
     }
 
-    private fun loadMemoList(){
-        Thread(Runnable {
+    private fun loadMemoList() {
+        val t = Thread(Runnable {
             memoList = memoDatabase.memoDao().getAll()
-            Log.i("memoList", memoList.toString())
-        }).start()
+            Log.i("onCreate_memoList", memoList.toString())
+        })
+        t.start()
+        t.join()
+
     }
 
     private fun setAdapter() {
-//        if(adapter == null) {
-//            adapter = NoteRecyclerViewAdapter(memoList)
-//            noteRecyclerView.layoutManager = GridLayoutManager(this, 2, GridLayoutManager.VERTICAL, false)
-//            noteRecyclerView.adapter = adapter
-//        } else {
-//            adapter?.notifyDataSetChanged()
-//        }
-
-        if(adapter != null){
-            adapter?.notifyDataSetChanged()
-        } else {
+        if (adapter != null) {
+            adapter?.updateMemoList(memoList)
+        }
+       else {
             adapter = NoteRecyclerViewAdapter(this, memoList)
             noteRecyclerView.layoutManager = GridLayoutManager(this, 2, GridLayoutManager.VERTICAL, false)
-            noteRecyclerView.adapter = adapter
         }
-
+        noteRecyclerView.adapter = adapter
     }
 }

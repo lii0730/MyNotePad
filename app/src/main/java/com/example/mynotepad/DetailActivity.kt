@@ -6,6 +6,7 @@ import android.os.Bundle
 import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
+import android.view.View
 import android.widget.EditText
 import android.widget.Toast
 import androidx.appcompat.widget.Toolbar
@@ -27,13 +28,14 @@ class DetailActivity : AppCompatActivity() {
         findViewById(R.id.detailText)
     }
 
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_detail)
         setSupportActionBar(detailActionBar)
         supportActionBar?.title = ""
 
-        if(intent != null){
+        if (intent.getStringExtra("title")!!.isNotEmpty() && intent.getStringExtra("text")!!.isNotEmpty()) {
             updateTextView(intent)
         }
     }
@@ -46,11 +48,12 @@ class DetailActivity : AppCompatActivity() {
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         when (item.itemId) {
             R.id.saveAction -> {
-
                 //TODO: 메모 DB 저장 기능
-                saveToDB(titleText.text.toString(), detailText.text.toString())
-
-                Toast.makeText(this, "저장 버튼 클릭!", Toast.LENGTH_SHORT).show()
+                if (titleText.text.isNotEmpty() && detailText.text.isNotEmpty()) {
+                    saveToDB(titleText.text.toString(), detailText.text.toString())
+                } else {
+                    Toast.makeText(this, "입력한 내용이 없어 메모를 저장하지 않았어요", Toast.LENGTH_SHORT).show()
+                }
                 this.finish()
                 return true
             }
@@ -58,6 +61,11 @@ class DetailActivity : AppCompatActivity() {
             R.id.addImageAction -> {
                 //TODO: 사진 추가
 
+                return true
+            }
+
+            R.id.deleteAction -> {
+                //TODO: 메모 삭제
                 return true
             }
 
