@@ -20,4 +20,7 @@ interface MemoDao {
 
     @Delete
     fun deleteMemo(memo : Memo)
+
+    @Query("Delete from Memo Where id == :id")
+    fun deleteMemo(id: Int?)
 }

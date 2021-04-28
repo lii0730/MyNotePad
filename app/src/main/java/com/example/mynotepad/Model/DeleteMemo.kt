@@ -5,7 +5,7 @@ import androidx.room.Entity
 import androidx.room.PrimaryKey
 
 @Entity
-data class Memo(
+data class DeleteMemo(
     @PrimaryKey(autoGenerate = true) val id: Int?,
     @ColumnInfo val title : String?,
     @ColumnInfo val text : String?

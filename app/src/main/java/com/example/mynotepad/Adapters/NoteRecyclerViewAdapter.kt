@@ -1,19 +1,16 @@
-package com.example.mynotepad
+package com.example.mynotepad.Adapters
 
 import android.content.Intent
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.LinearLayout
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
-import androidx.recyclerview.widget.AsyncListDiffer
-import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
+import com.example.mynotepad.DetailActivity
 import com.example.mynotepad.Model.Memo
-import java.text.SimpleDateFormat
-import java.util.*
+import com.example.mynotepad.R
 
 class NoteRecyclerViewAdapter(val activity: AppCompatActivity ,var memoList: List<Memo>) : RecyclerView.Adapter<NoteRecyclerViewAdapter.ViewHolder>() {
 
@@ -44,6 +41,7 @@ class NoteRecyclerViewAdapter(val activity: AppCompatActivity ,var memoList: Lis
         holder.item_title.text = memoList.get(position).title
         holder.item_text.text = memoList.get(position).text
         val memoId = memoList.get(position).id
+
 //        val format = SimpleDateFormat("yyyy-mm-dd HH:mm:ss")
 //        val currTime = format.format(Calendar.getInstance().time)
 //        holder.item_saveTime.text = "$currTime"

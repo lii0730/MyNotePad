@@ -6,29 +6,32 @@
     android:id="@+id/item"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:background="@drawable/layout_stroke_layout"
-    android:layout_margin="5dp"
-    android:padding="10dp"
-    android:clickable="true"
-    android:layout_marginBottom="20dp"
     android:layout_gravity="center"
-    android:orientation="vertical">
+    android:layout_margin="5dp"
+    android:layout_marginBottom="20dp"
+    android:background="@drawable/layout_stroke_layout"
+    android:clickable="true"
+    android:orientation="vertical"
+    android:padding="10dp">
 
-<!--    <TextView-->
-<!--        android:id="@+id/item_saveTime"-->
-<!--        android:layout_width="match_parent"-->
-<!--        android:layout_height="wrap_content"-->
-<!--        android:gravity="start"-->
-<!--        android:textColor="@color/timeTextColor"-->
-<!--        tools:text="2021-04-27 16:59 Pm"-->
-<!--        android:paddingHorizontal="20dp"/>-->
+    <!--    <TextView-->
+    <!--        android:id="@+id/item_saveTime"-->
+    <!--        android:layout_width="match_parent"-->
+    <!--        android:layout_height="wrap_content"-->
+    <!--        android:gravity="start"-->
+    <!--        android:textColor="@color/timeTextColor"-->
+    <!--        tools:text="2021-04-27 16:59 Pm"-->
+    <!--        android:paddingHorizontal="20dp"/>-->
 
     <TextView
         android:id="@+id/item_title"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:ellipsize="end"
         android:gravity="center"
-        android:textSize="25sp"
+        android:maxLines="1"
+        android:paddingHorizontal="5dp"
+        android:textSize="20sp"
         android:textStyle="bold"
         tools:text="text" />
 
@@ -39,6 +42,7 @@
         android:ellipsize="end"
         android:gravity="center"
         android:maxLines="2"
+        android:paddingHorizontal="3dp"
         android:textSize="15sp"
         tools:text="text" />
 
