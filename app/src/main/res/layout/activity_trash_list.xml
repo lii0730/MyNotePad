@@ -27,6 +27,7 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintBottom_toBottomOf="parent"
+        tools:listitem="@layout/trash_recyclerview_item_layout"
         android:layout_margin="10dp"/>
 
 

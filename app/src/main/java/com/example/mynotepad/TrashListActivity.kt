@@ -1,15 +1,13 @@
 package com.example.mynotepad
 
-import android.app.PendingIntent
 import android.content.Intent
-import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.view.View
-import android.widget.Button
+import androidx.appcompat.app.AppCompatActivity
+import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.mynotepad.Adapters.TrashRecyclerViewAdapter
-import com.example.mynotepad.Database.trashDatabase
 import com.example.mynotepad.MainActivity.Companion.trashDB
 import com.example.mynotepad.Model.DeleteMemo
 
@@ -55,7 +53,7 @@ class TrashListActivity : AppCompatActivity() {
     private fun setAdapter() {
         if(trashAdapter == null){
             trashAdapter = TrashRecyclerViewAdapter(trashMemoList)
-            trashRecyclerView.layoutManager = LinearLayoutManager(this)
+            trashRecyclerView.layoutManager = GridLayoutManager(this, 2, GridLayoutManager.VERTICAL, false)
         } else {
             trashAdapter?.updateMemoList(trashMemoList)
         }

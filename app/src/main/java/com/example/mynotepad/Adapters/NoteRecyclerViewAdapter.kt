@@ -7,23 +7,25 @@ import android.view.ViewGroup
 import android.widget.LinearLayout
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
+import androidx.cardview.widget.CardView
 import androidx.recyclerview.widget.RecyclerView
 import com.example.mynotepad.DetailActivity
 import com.example.mynotepad.Model.Memo
 import com.example.mynotepad.R
 
-class NoteRecyclerViewAdapter(val activity: AppCompatActivity ,var memoList: List<Memo>) : RecyclerView.Adapter<NoteRecyclerViewAdapter.ViewHolder>() {
+class NoteRecyclerViewAdapter(val activity: AppCompatActivity, var memoList: List<Memo>) :
+    RecyclerView.Adapter<NoteRecyclerViewAdapter.ViewHolder>() {
 
-    inner class ViewHolder(itemView : View) :RecyclerView.ViewHolder(itemView) {
-        val item : LinearLayout by lazy {
+    inner class ViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
+        val item: CardView by lazy {
             itemView.findViewById(R.id.item)
         }
 
-        val item_title : TextView by lazy {
+        val item_title: TextView by lazy {
             itemView.findViewById(R.id.item_title)
         }
 
-        val item_text : TextView by lazy {
+        val item_text: TextView by lazy {
             itemView.findViewById(R.id.item_text)
         }
 
@@ -33,7 +35,8 @@ class NoteRecyclerViewAdapter(val activity: AppCompatActivity ,var memoList: Lis
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
-        val view = LayoutInflater.from(parent.context).inflate(R.layout.recyclerview_item_layout, parent, false)
+        val view = LayoutInflater.from(parent.context)
+            .inflate(R.layout.recyclerview_item_layout, parent, false)
         return ViewHolder(view)
     }
 
@@ -48,7 +51,11 @@ class NoteRecyclerViewAdapter(val activity: AppCompatActivity ,var memoList: Lis
 
         holder.item.setOnClickListener {
             //TODO: 항목을 클릭했을 때 세부 내용으로 넘어감
-            val stringArray = arrayListOf<String>(holder.item_title.text.toString(), holder.item_text.text.toString(), memoId.toString())
+            val stringArray = arrayListOf<String>(
+                holder.item_title.text.toString(),
+                holder.item_text.text.toString(),
+                memoId.toString()
+            )
             val intent = Intent(holder.itemView.context, DetailActivity::class.java)
             intent.putStringArrayListExtra("memoData", stringArray)
             activity.startActivity(intent)

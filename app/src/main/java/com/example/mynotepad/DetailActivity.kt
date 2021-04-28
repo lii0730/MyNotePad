@@ -28,7 +28,7 @@ class DetailActivity : AppCompatActivity() {
         findViewById(R.id.detailText)
     }
 
-    private lateinit var tmpMemo : Memo
+    private lateinit var tmpMemo: Memo
     private lateinit var tmpDeleteMemo: DeleteMemo
 
 
@@ -38,17 +38,20 @@ class DetailActivity : AppCompatActivity() {
         setSupportActionBar(detailActionBar)
         supportActionBar?.title = ""
 
-        if(CheckIntent()) {
+        if (CheckIntent()) {
             updateDisplayTextView()
         }
     }
+
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {
         menuInflater.inflate(R.menu.detail_actionbar_actions, menu)
-        if(CheckIntent()) {
+        if (CheckIntent()) {
             val menuItem = menu?.add("삭제 하기")
+            menuItem?.setIcon(R.drawable.ic_trash)
+            menuItem?.setShowAsAction(SHOW_AS_ACTION_ALWAYS)
             menuItem?.setOnMenuItemClickListener {
                 //TODO: 삭제 작업
-                if(CheckIntent()) {
+                if (CheckIntent()) {
                     tmpMemo = createTmpMemo()
                     tmpDeleteMemo = createTmpDeleteMemo()
                     deleteFromDB(tmpMemo.id)
@@ -57,8 +60,6 @@ class DetailActivity : AppCompatActivity() {
                 }
                 true
             }
-            menuItem?.setIcon(R.drawable.ic_trash)
-            menuItem?.setShowAsAction(SHOW_AS_ACTION_ALWAYS)
         }
         return true
     }
@@ -67,13 +68,17 @@ class DetailActivity : AppCompatActivity() {
         when (item.itemId) {
             R.id.saveAction -> {
                 //TODO: 메모 DB 저장 기능
-                if (titleText.text.isNotEmpty() && detailText.text.isNotEmpty()) {
+                if (titleText.text.isNotEmpty() || detailText.text.isNotEmpty()) {
 
-                    if(CheckIntent()) {
+                    if (CheckIntent()) {
                         //TODO: 수정 후 저장 작업
                         tmpMemo = createTmpMemo()
                         Thread(Runnable {
-                            memoDatabase.memoDao().updateMemo(titleText.text.toString(), detailText.text.toString(), tmpMemo.id)
+                            memoDatabase.memoDao().updateMemo(
+                                titleText.text.toString(),
+                                detailText.text.toString(),
+                                tmpMemo.id
+                            )
                         }).start()
                     } else {
                         //TODO: 신규 메모 저장 작업
@@ -90,7 +95,7 @@ class DetailActivity : AppCompatActivity() {
 
             R.id.addImageAction -> {
                 //TODO: 사진 추가
-                Toast.makeText(this,"사진 추가", Toast.LENGTH_SHORT).show()
+                Toast.makeText(this, "사진 추가", Toast.LENGTH_SHORT).show()
                 return true
             }
 
@@ -100,7 +105,7 @@ class DetailActivity : AppCompatActivity() {
         }
     }
 
-    private fun deleteFromDB(id : Int?) {
+    private fun deleteFromDB(id: Int?) {
         //TODO: memoDB에서 삭제
         Thread(Runnable {
             memoDatabase.memoDao().deleteMemo(id = id)
@@ -134,7 +139,7 @@ class DetailActivity : AppCompatActivity() {
         this.detailText.setText(tmpData?.get(1))
     }
 
-    private fun CheckIntent() : Boolean {
+    private fun CheckIntent(): Boolean {
         var rval = false
         if (intent.getStringArrayListExtra("memoData") != null) {
             rval = true
@@ -142,9 +147,9 @@ class DetailActivity : AppCompatActivity() {
         return rval
     }
 
-    private fun createTmpMemo() : Memo{
-        lateinit var needUpdateMemo : Memo
-        if(!intent.getStringArrayListExtra("memoData").isNullOrEmpty()) {
+    private fun createTmpMemo(): Memo {
+        lateinit var needUpdateMemo: Memo
+        if (!intent.getStringArrayListExtra("memoData").isNullOrEmpty()) {
             val tmpArray = intent.getStringArrayListExtra("memoData") as ArrayList<String>
             val title = tmpArray[0]
             val text = tmpArray[1]
@@ -154,9 +159,9 @@ class DetailActivity : AppCompatActivity() {
         return needUpdateMemo
     }
 
-    private fun createTmpDeleteMemo() : DeleteMemo{
-        lateinit var needDeleteMemo : DeleteMemo
-        if(!intent.getStringArrayListExtra("memoData").isNullOrEmpty()) {
+    private fun createTmpDeleteMemo(): DeleteMemo {
+        lateinit var needDeleteMemo: DeleteMemo
+        if (!intent.getStringArrayListExtra("memoData").isNullOrEmpty()) {
             val tmpArray = intent.getStringArrayListExtra("memoData") as ArrayList<String>
             val title = tmpArray[0]
             val text = tmpArray[1]

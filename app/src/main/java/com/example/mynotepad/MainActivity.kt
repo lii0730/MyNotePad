@@ -83,7 +83,6 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-
     private fun bindButton() {
         //TODO: 메모 추가 버튼(FAB) 클릭
         addNoteButton.setOnClickListener {
@@ -98,8 +97,8 @@ class MainActivity : AppCompatActivity() {
 
     fun onDeleteButtonClicked(view: View) {
         //TODO: Drawer Layout에 휴지통 버튼 클릭
-        if(view.id == R.id.deleteButton) {
-            try{
+        if (view.id == R.id.deleteButton) {
+            try {
                 val intent = Intent(this@MainActivity, TrashListActivity::class.java)
                 startActivity(intent)
             } catch (e: Exception) {
@@ -107,7 +106,6 @@ class MainActivity : AppCompatActivity() {
             }
         }
     }
-
 
     private fun createDatabase() {
         //TODO: Memo 저장 DB 생성
@@ -140,10 +138,10 @@ class MainActivity : AppCompatActivity() {
     private fun setAdapter() {
         if (adapter != null) {
             adapter?.updateMemoList(memoList)
-        }
-       else {
+        } else {
             adapter = NoteRecyclerViewAdapter(this, memoList)
-            noteRecyclerView.layoutManager = GridLayoutManager(this, 2, GridLayoutManager.VERTICAL, false)
+            noteRecyclerView.layoutManager =
+                GridLayoutManager(this, 2, GridLayoutManager.VERTICAL, false)
         }
         noteRecyclerView.adapter = adapter
     }
@@ -151,6 +149,6 @@ class MainActivity : AppCompatActivity() {
 
     companion object {
         lateinit var memoDatabase: appDatabase
-        lateinit var trashDB : trashDatabase
+        lateinit var trashDB: trashDatabase
     }
 }
