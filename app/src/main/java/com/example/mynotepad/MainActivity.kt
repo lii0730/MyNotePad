@@ -1,15 +1,13 @@
 package com.example.mynotepad
 
 import android.content.Intent
-import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
-import android.view.Menu
 import android.view.MenuItem
 import android.view.View
-import android.widget.Button
 import android.widget.Toast
 import androidx.appcompat.app.ActionBarDrawerToggle
+import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
 import androidx.drawerlayout.widget.DrawerLayout
 import androidx.recyclerview.widget.GridLayoutManager
@@ -21,6 +19,7 @@ import com.example.mynotepad.Database.trashDatabase
 import com.example.mynotepad.Model.DeleteMemo
 import com.example.mynotepad.Model.Memo
 import com.google.android.material.floatingactionbutton.FloatingActionButton
+import java.io.File
 
 class MainActivity : AppCompatActivity() {
 
@@ -56,6 +55,9 @@ class MainActivity : AppCompatActivity() {
         createDatabase()
         loadMemoList()
         setAdapter()
+
+        val file = File(application.filesDir.absolutePath + File.separator + "Memo.txt")
+        Log.i("MainActivity", file.toString())
     }
 
     override fun onRestart() {
@@ -65,10 +67,10 @@ class MainActivity : AppCompatActivity() {
     }
 
     //TODO: actionbar menu action 생성
-    override fun onCreateOptionsMenu(menu: Menu?): Boolean {
-        menuInflater.inflate(R.menu.main_actionbar_actions, menu)
-        return true
-    }
+//    override fun onCreateOptionsMenu(menu: Menu?): Boolean {
+//        menuInflater.inflate(R.menu.main_actionbar_actions, menu)
+//        return true
+//    }
 
     //TODO: menu에서 아이템(액션) 선택 클릭시
     override fun onOptionsItemSelected(item: MenuItem): Boolean {

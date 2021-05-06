@@ -1,6 +1,16 @@
 package com.example.mynotepad
 
+import android.Manifest
+import android.app.Activity
+import android.app.AlertDialog
+import android.content.Intent
+import android.content.pm.PackageManager
+import android.graphics.drawable.Drawable
 import android.os.Bundle
+import android.os.Environment
+import android.text.SpannableStringBuilder
+import android.text.Spanned
+import android.text.style.ImageSpan
 import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
@@ -9,10 +19,13 @@ import android.widget.EditText
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
+import androidx.core.app.ActivityCompat
+import androidx.core.content.ContextCompat
 import com.example.mynotepad.MainActivity.Companion.memoDatabase
 import com.example.mynotepad.MainActivity.Companion.trashDB
 import com.example.mynotepad.Model.DeleteMemo
 import com.example.mynotepad.Model.Memo
+import java.io.*
 
 class DetailActivity : AppCompatActivity() {
 
@@ -32,11 +45,18 @@ class DetailActivity : AppCompatActivity() {
     private lateinit var tmpDeleteMemo: DeleteMemo
 
 
+    private val PERMISSIONS_REQUEST_CODE = 100
+    private val REQUEST_GET_IMAGE = 200
+    private var REQUIRED_PERMISSIONS =
+        arrayOf<String>(android.Manifest.permission.READ_EXTERNAL_STORAGE)
+
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_detail)
         setSupportActionBar(detailActionBar)
-        supportActionBar?.title = ""
+        detailText.isSaveFromParentEnabled = false
+        detailText.isSaveEnabled = true
 
         if (CheckIntent()) {
             updateDisplayTextView()
@@ -95,7 +115,8 @@ class DetailActivity : AppCompatActivity() {
 
             R.id.addImageAction -> {
                 //TODO: 사진 추가
-                Toast.makeText(this, "사진 추가", Toast.LENGTH_SHORT).show()
+                //TODO: 권한 받기
+                checkPermissions()
                 return true
             }
 
@@ -121,9 +142,34 @@ class DetailActivity : AppCompatActivity() {
                     memo
                 )
             }).start()
+
+            //TODO: 파일에 저장
+            saveToInnerStorage(title, text)
+
         } catch (e: Exception) {
             Log.i("saveDB Exception", e.toString())
         }
+    }
+
+    private fun saveToInnerStorage(title: String, text: String) {
+        try {
+            val filepath = filesDir
+            Log.i("FILEPATH", filepath.absolutePath)
+
+            val file = File(filepath.path + File.separator + "$title.txt")
+            val fos : FileOutputStream = openFileOutput(file.name, MODE_PRIVATE)
+            fos.write(text.toByteArray(), 0, text.length)
+            fos.flush()
+            fos.close()
+        } catch (e : java.lang.Exception) {
+            Log.i("SaveFileError", e.toString())
+        }
+//        val fileWriter = FileWriter(file, false)
+//
+//        val bufferedWriter = BufferedWriter(fileWriter)
+//        bufferedWriter.write(text)
+//        bufferedWriter.close()
+
     }
 
     private fun insertToTrashDB(memo: DeleteMemo) {
@@ -169,5 +215,101 @@ class DetailActivity : AppCompatActivity() {
             needDeleteMemo = DeleteMemo(id, title, text)
         }
         return needDeleteMemo
+    }
+
+    private fun checkPermissions() {
+        val permissionCheck = ContextCompat.checkSelfPermission(
+            this,
+            Manifest.permission.READ_EXTERNAL_STORAGE
+        )
+
+        //TODO: 권한 부여x
+        if (permissionCheck != PackageManager.PERMISSION_GRANTED) {
+            if (ActivityCompat.shouldShowRequestPermissionRationale(
+                    this,
+                    Manifest.permission.READ_EXTERNAL_STORAGE
+                )
+            ) {
+                showPermissionContextPopUp()
+            } else {
+                ActivityCompat.requestPermissions(
+                    this,
+                    REQUIRED_PERMISSIONS,
+                    PERMISSIONS_REQUEST_CODE
+                )
+            }
+        } else {
+            // TODO: 권한 부여
+            //  사진 선택 기능
+            navigatePhotos()
+        }
+    }
+
+    private fun showPermissionContextPopUp() {
+        AlertDialog.Builder(this)
+            .setTitle("권한이 필요합니다.")
+            .setMessage("메모장 앱에서 사진을 불러오기 위해 권한이 필요합니다.")
+            .setPositiveButton("동의하기") { _, _ ->
+                ActivityCompat.requestPermissions(
+                    this,
+                    REQUIRED_PERMISSIONS,
+                    PERMISSIONS_REQUEST_CODE
+                )
+            }
+            .setNegativeButton("취소하기", null)
+            .create()
+            .show()
+    }
+
+    private fun navigatePhotos() {
+        val intent = Intent(Intent.ACTION_GET_CONTENT)
+        intent.type = "image/*"
+        startActivityForResult(intent, REQUEST_GET_IMAGE)
+    }
+
+    override fun onRequestPermissionsResult(
+        requestCode: Int,
+        permissions: Array<out String>,
+        grantResults: IntArray
+    ) {
+        when (requestCode) {
+            PERMISSIONS_REQUEST_CODE -> {
+                if (grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                    navigatePhotos()
+                } else {
+                    Toast.makeText(this, "권한을 거부하였습니다.", Toast.LENGTH_SHORT).show()
+                }
+                return
+            }
+        }
+    }
+
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        super.onActivityResult(requestCode, resultCode, data)
+        if (resultCode == Activity.RESULT_OK) {
+            when (requestCode) {
+                REQUEST_GET_IMAGE -> {
+                    //TODO: EditText에 사진 추가 작업을 해주어야 하는데!
+                    Log.i("DetailActivity", data?.data.toString())
+
+                    val builder = SpannableStringBuilder(detailText.text)
+                    val inputStream: InputStream = contentResolver.openInputStream(data?.data!!)!!
+                    val image: Drawable = Drawable.createFromStream(inputStream, "addImage")
+                    image.setBounds(0, 0, 100, 100)
+
+                    detailText.setSelection(detailText.text.length)
+
+                    val imageSpan = ImageSpan(image)
+                    val start = builder.getSpanStart(imageSpan)
+                    val end = builder.getSpanEnd(imageSpan)
+                    try{
+                        builder.setSpan(imageSpan, start, end, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
+                        detailText.text = builder
+                    } catch (e : Exception) {
+                        Log.e("DetailActivity", e.toString())
+                    }
+                }
+            }
+        }
     }
 }
