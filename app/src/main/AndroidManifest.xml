@@ -13,7 +13,27 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.MyNotePad">
         <activity android:name=".TrashListActivity"></activity>
-        <activity android:name=".DetailActivity" />
+        <activity android:name=".DetailActivity">
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
+
+                <category android:name="android.intent.category.APP_BROWSER" />
+                <category android:name="android.intent.category.DEFAULT" />
+
+                <data android:scheme="com.example.mynotepad" />
+            </intent-filter>
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
+
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+
+                <data
+                    android:scheme="http"
+                    android:host="com.example.mynotepad"
+                    android:pathPattern="/notepad" />
+            </intent-filter>
+        </activity>
         <activity android:name=".MainActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />

@@ -7,7 +7,6 @@ import android.content.Intent
 import android.content.pm.PackageManager
 import android.graphics.drawable.Drawable
 import android.os.Bundle
-import android.os.Environment
 import android.text.SpannableStringBuilder
 import android.text.Spanned
 import android.text.style.ImageSpan
@@ -25,7 +24,9 @@ import com.example.mynotepad.MainActivity.Companion.memoDatabase
 import com.example.mynotepad.MainActivity.Companion.trashDB
 import com.example.mynotepad.Model.DeleteMemo
 import com.example.mynotepad.Model.Memo
-import java.io.*
+import java.io.File
+import java.io.FileOutputStream
+import java.io.InputStream
 
 class DetailActivity : AppCompatActivity() {
 
@@ -40,6 +41,8 @@ class DetailActivity : AppCompatActivity() {
     private val detailText: EditText by lazy {
         findViewById(R.id.detailText)
     }
+
+    private var memoList = mutableListOf<Memo>()
 
     private lateinit var tmpMemo: Memo
     private lateinit var tmpDeleteMemo: DeleteMemo
@@ -74,6 +77,7 @@ class DetailActivity : AppCompatActivity() {
                 if (CheckIntent()) {
                     tmpMemo = createTmpMemo()
                     tmpDeleteMemo = createTmpDeleteMemo()
+                    deleteMemoFile(tmpMemo)
                     deleteFromDB(tmpMemo.id)
                     insertToTrashDB(tmpDeleteMemo)
                     this.finish()
@@ -93,6 +97,7 @@ class DetailActivity : AppCompatActivity() {
                     if (CheckIntent()) {
                         //TODO: 수정 후 저장 작업
                         tmpMemo = createTmpMemo()
+                        updateMemoFile(tmpMemo)
                         Thread(Runnable {
                             memoDatabase.memoDao().updateMemo(
                                 titleText.text.toString(),
@@ -126,6 +131,59 @@ class DetailActivity : AppCompatActivity() {
         }
     }
 
+    private fun updateMemoFile(memo: Memo) {
+        val t = Thread {
+            memoList = memoDatabase.memoDao().getAll() as MutableList<Memo>
+        }
+        t.start()
+        t.join()
+
+        memo.title = titleText.text.toString()
+        memo.text = detailText.text.toString()
+
+        memoList.forEachIndexed { index, it ->
+            if (it.id == memo.id) {
+                memoList.set(index, memo)
+                try {
+                    var tmp = File(getExternalFilesDir(null)!!.path + File.separator + "${it.title}.txt")
+                    if(tmp.exists()) {
+                        tmp.delete()
+                    }
+                    tmp =
+                        File(getExternalFilesDir(null)!!.path + File.separator + "${memo.title}.txt")
+                    val fos = FileOutputStream(tmp)
+                    fos.write(memo.text?.toByteArray())
+                    fos.close()
+                } catch (e: java.lang.Exception) {
+                    Log.i("UpdateError", e.toString())
+                }
+            }
+        }
+    }
+
+    private fun deleteMemoFile(memo: Memo) {
+        val t = Thread {
+            memoList = memoDatabase.memoDao().getAll() as MutableList<Memo>
+        }
+        t.start()
+        t.join()
+
+        memoList.forEach {
+            if (it.id == memo.id) {
+                try {
+                    val file =
+                        File(getExternalFilesDir(null)!!.path + File.separator + "${it.title}.txt")
+                    if (file.exists()) {
+                        file.delete()
+                        memoList.remove(it)
+                    }
+                } catch (e : java.lang.Exception) {
+                    Log.i("deleteError", e.toString())
+                }
+            }
+        }
+    }
+
     private fun deleteFromDB(id: Int?) {
         //TODO: memoDB에서 삭제
         Thread(Runnable {
@@ -143,33 +201,26 @@ class DetailActivity : AppCompatActivity() {
                 )
             }).start()
 
-            //TODO: 파일에 저장
-            saveToInnerStorage(title, text)
+            //TODO: sdcard에 파일로 저장
+            saveToStorage(memo)
 
         } catch (e: Exception) {
             Log.i("saveDB Exception", e.toString())
         }
     }
 
-    private fun saveToInnerStorage(title: String, text: String) {
+    private fun saveToStorage(memo: Memo) {
         try {
-            val filepath = filesDir
-            Log.i("FILEPATH", filepath.absolutePath)
-
-            val file = File(filepath.path + File.separator + "$title.txt")
-            val fos : FileOutputStream = openFileOutput(file.name, MODE_PRIVATE)
-            fos.write(text.toByteArray(), 0, text.length)
-            fos.flush()
+            val fileDir =
+                File(getExternalFilesDir(null)!!.path + File.separator + "${memo.title}.txt")
+            val fos = FileOutputStream(fileDir)
+            fos.write(memo.text?.toByteArray())
             fos.close()
-        } catch (e : java.lang.Exception) {
+            memoList.add(memo)
+
+        } catch (e: java.lang.Exception) {
             Log.i("SaveFileError", e.toString())
         }
-//        val fileWriter = FileWriter(file, false)
-//
-//        val bufferedWriter = BufferedWriter(fileWriter)
-//        bufferedWriter.write(text)
-//        bufferedWriter.close()
-
     }
 
     private fun insertToTrashDB(memo: DeleteMemo) {
@@ -302,10 +353,10 @@ class DetailActivity : AppCompatActivity() {
                     val imageSpan = ImageSpan(image)
                     val start = builder.getSpanStart(imageSpan)
                     val end = builder.getSpanEnd(imageSpan)
-                    try{
+                    try {
                         builder.setSpan(imageSpan, start, end, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
                         detailText.text = builder
-                    } catch (e : Exception) {
+                    } catch (e: Exception) {
                         Log.e("DetailActivity", e.toString())
                     }
                 }
