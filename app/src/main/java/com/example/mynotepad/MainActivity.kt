@@ -1,7 +1,11 @@
 package com.example.mynotepad
 
+import android.app.Activity
 import android.content.Intent
+import android.database.Cursor
+import android.net.Uri
 import android.os.Bundle
+import android.provider.OpenableColumns
 import android.util.Log
 import android.view.MenuItem
 import android.view.View
@@ -19,7 +23,13 @@ import com.example.mynotepad.Database.trashDatabase
 import com.example.mynotepad.Model.DeleteMemo
 import com.example.mynotepad.Model.Memo
 import com.google.android.material.floatingactionbutton.FloatingActionButton
+import java.io.BufferedReader
 import java.io.File
+import java.io.FileInputStream
+import java.io.InputStreamReader
+import java.nio.Buffer
+import java.nio.charset.Charset
+
 
 class MainActivity : AppCompatActivity() {
 
@@ -45,19 +55,19 @@ class MainActivity : AppCompatActivity() {
     private var trashList: List<DeleteMemo> = emptyList()
 
     private var adapter: NoteRecyclerViewAdapter? = null
+    private  var stringList : ArrayList<String>? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
         setSupportActionBar(actionBar)
 
+        stringList = ArrayList<String>()
+
         bindButton()
         createDatabase()
         loadMemoList()
         setAdapter()
-
-        val file = File(application.filesDir.absolutePath + File.separator + "Memo.txt")
-        Log.i("MainActivity", file.toString())
     }
 
     override fun onRestart() {
@@ -91,10 +101,10 @@ class MainActivity : AppCompatActivity() {
             val intent = Intent(this, DetailActivity::class.java)
             startActivity(intent)
         }
+
         //TODO: Drawer Layout Toggle
         mDrawerToggle =
             ActionBarDrawerToggle(this, drawer_layout, actionBar, R.string.open, R.string.close)
-        mDrawerToggle!!.syncState()
     }
 
     fun onDeleteButtonClicked(view: View) {
@@ -105,6 +115,51 @@ class MainActivity : AppCompatActivity() {
                 startActivity(intent)
             } catch (e: Exception) {
                 Log.i("deleteButton", e.toString())
+            }
+        }
+    }
+
+    fun onOpenMemoClicked(view: View) {
+        //TODO: 파일저장소에서 텍스트 파일 선택 후 DetailActivity의 Data 전달
+        if(view.id == R.id.openNoteButton){
+
+            val intent = Intent(Intent.ACTION_OPEN_DOCUMENT).apply {
+                val uri : Uri = Uri.parse("content://com.android.externalstorage.documents/document/primary%3AAndroid%2Fdata%2Fcom.example.mynotepad%files")
+                setData(uri)
+                setType("*/*")
+                putExtra("android.provider.extra.INITIAL_URI", uri)
+                putExtra("android.content.extra.SHOW_ADVANCED", false)
+                addCategory(Intent.CATEGORY_OPENABLE)
+            }
+            startActivityForResult(intent, REQUEST_GET_TEXTFILE)
+        }
+    }
+
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        super.onActivityResult(requestCode, resultCode, data)
+        if(resultCode == Activity.RESULT_OK){
+            if(requestCode == REQUEST_GET_TEXTFILE){
+                data?.data.let {
+                    contentResolver.query(it!!, null,null,null,null)
+                }.use { cursor ->
+                    cursor?.moveToFirst()
+                    val nameIndex = cursor?.getColumnIndex(OpenableColumns.DISPLAY_NAME)
+                    val fileName = cursor!!.getString(nameIndex!!)
+
+                    val tmp = File(getExternalFilesDir(null)!!.path + File.separator + fileName)
+                    if(tmp.exists()){
+                        val fis = FileInputStream(tmp)
+                        val reader : InputStreamReader = InputStreamReader(fis, Charset.defaultCharset())
+                        val bufReader = BufferedReader(reader)
+
+                        val stringText = bufReader.readText()
+                        stringList?.add(0, tmp.nameWithoutExtension)
+                        stringList?.add(1, stringText)
+                        val intent = Intent(this, DetailActivity::class.java)
+                        intent.putStringArrayListExtra("memoData", stringList)
+                        startActivity(intent)
+                    }
+                }
             }
         }
     }
@@ -152,5 +207,6 @@ class MainActivity : AppCompatActivity() {
     companion object {
         lateinit var memoDatabase: appDatabase
         lateinit var trashDB: trashDatabase
+        const val REQUEST_GET_TEXTFILE = 100
     }
 }

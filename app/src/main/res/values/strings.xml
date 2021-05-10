@@ -6,4 +6,5 @@
     <string name="open">open</string>
     <string name="close">close</string>
     <string name="trash">휴지통</string>
+    <string name="openNote">열기</string>
 </resources>

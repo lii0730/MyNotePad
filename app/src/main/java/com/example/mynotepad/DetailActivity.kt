@@ -14,6 +14,7 @@ import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
 import android.view.MenuItem.SHOW_AS_ACTION_ALWAYS
+import android.widget.Button
 import android.widget.EditText
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
@@ -60,6 +61,9 @@ class DetailActivity : AppCompatActivity() {
         setSupportActionBar(detailActionBar)
         detailText.isSaveFromParentEnabled = false
         detailText.isSaveEnabled = true
+        setSupportActionBar(detailActionBar)
+        detailText.isSaveFromParentEnabled = false
+        detailText.isSaveEnabled = true
 
         if (CheckIntent()) {
             updateDisplayTextView()
@@ -91,11 +95,13 @@ class DetailActivity : AppCompatActivity() {
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         when (item.itemId) {
             R.id.saveAction -> {
+
                 //TODO: 메모 DB 저장 기능
                 if (titleText.text.isNotEmpty() || detailText.text.isNotEmpty()) {
 
                     if (CheckIntent()) {
                         //TODO: 수정 후 저장 작업
+                            //TODO: 에러 발생 부분 저장소에서 파일 선택시
                         tmpMemo = createTmpMemo()
                         updateMemoFile(tmpMemo)
                         Thread(Runnable {
@@ -230,18 +236,19 @@ class DetailActivity : AppCompatActivity() {
         }).start()
     }
 
-    private fun updateDisplayTextView() {
-        val tmpData = intent.getStringArrayListExtra("memoData")
-        this.titleText.setText(tmpData?.get(0))
-        this.detailText.setText(tmpData?.get(1))
-    }
-
     private fun CheckIntent(): Boolean {
         var rval = false
         if (intent.getStringArrayListExtra("memoData") != null) {
             rval = true
         }
         return rval
+    }
+
+
+    private fun updateDisplayTextView() {
+        val tmpData = intent.getStringArrayListExtra("memoData")
+        this.titleText.setText(tmpData?.get(0))
+        this.detailText.setText(tmpData?.get(1))
     }
 
     private fun createTmpMemo(): Memo {

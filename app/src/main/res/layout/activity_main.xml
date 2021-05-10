@@ -52,7 +52,19 @@
             android:layout_height="wrap_content"
             android:layout_gravity="center_horizontal"
             android:gravity="center"
-            android:orientation="horizontal">
+            android:orientation="vertical">
+
+            <Button
+                android:id="@+id/openNoteButton"
+                android:layout_width="match_parent"
+                android:layout_height="?attr/actionBarSize"
+                android:backgroundTint="@color/white"
+                android:drawableLeft="@drawable/ic_folder_open"
+                android:gravity="center_vertical"
+                android:text="@string/openNote"
+                android:onClick="onOpenMemoClicked"
+                android:textColor="@color/black"
+                android:textSize="15sp" />
 
             <Button
                 android:id="@+id/deleteButton"
