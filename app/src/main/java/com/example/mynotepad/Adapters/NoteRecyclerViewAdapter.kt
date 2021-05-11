@@ -4,7 +4,6 @@ import android.content.Intent
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.LinearLayout
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
 import androidx.cardview.widget.CardView
@@ -29,9 +28,6 @@ class NoteRecyclerViewAdapter(val activity: AppCompatActivity, var memoList: Lis
             itemView.findViewById(R.id.item_text)
         }
 
-//        val item_saveTime : TextView by lazy {
-//            itemView.findViewById(R.id.item_saveTime)
-//        }
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
@@ -45,16 +41,14 @@ class NoteRecyclerViewAdapter(val activity: AppCompatActivity, var memoList: Lis
         holder.item_text.text = memoList.get(position).text
         val memoId = memoList.get(position).id
 
-//        val format = SimpleDateFormat("yyyy-mm-dd HH:mm:ss")
-//        val currTime = format.format(Calendar.getInstance().time)
-//        holder.item_saveTime.text = "$currTime"
 
+        holder.item.isClickable = false
         holder.item.setOnClickListener {
             //TODO: 항목을 클릭했을 때 세부 내용으로 넘어감
             val stringArray = arrayListOf<String>(
+                memoId.toString(),
                 holder.item_title.text.toString(),
-                holder.item_text.text.toString(),
-                memoId.toString()
+                holder.item_text.text.toString()
             )
             val intent = Intent(holder.itemView.context, DetailActivity::class.java)
             intent.putStringArrayListExtra("memoData", stringArray)

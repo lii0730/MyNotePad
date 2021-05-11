@@ -13,6 +13,7 @@ import android.widget.Toast
 import androidx.appcompat.app.ActionBarDrawerToggle
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
+import androidx.core.view.GravityCompat
 import androidx.drawerlayout.widget.DrawerLayout
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -74,6 +75,9 @@ class MainActivity : AppCompatActivity() {
         super.onRestart()
         loadMemoList()
         setAdapter()
+        if(drawer_layout.isDrawerOpen(GravityCompat.START)) {
+            drawer_layout.closeDrawer(GravityCompat.START)
+        }
     }
 
     //TODO: actionbar menu action 생성
@@ -153,14 +157,29 @@ class MainActivity : AppCompatActivity() {
                         val bufReader = BufferedReader(reader)
 
                         val stringText = bufReader.readText()
-                        stringList?.add(0, tmp.nameWithoutExtension)
-                        stringList?.add(1, stringText)
+                        var id : Int? = null
+                        memoList.forEach {
+                            if(tmp.nameWithoutExtension.equals(it.title) && stringText.equals(it.text)){
+                                id = it.id
+                            }
+                        }
+                        stringList?.add(0, id.toString())
+                        stringList?.add(1, tmp.nameWithoutExtension)
+                        stringList?.add(2, stringText)
                         val intent = Intent(this, DetailActivity::class.java)
                         intent.putStringArrayListExtra("memoData", stringList)
                         startActivity(intent)
                     }
                 }
             }
+        }
+    }
+
+    override fun onBackPressed() {
+        if(drawer_layout.isDrawerOpen(GravityCompat.START)){
+            drawer_layout.closeDrawer(GravityCompat.START)
+        } else {
+            super.onBackPressed()
         }
     }
 

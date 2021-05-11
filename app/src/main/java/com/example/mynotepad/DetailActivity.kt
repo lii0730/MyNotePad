@@ -14,7 +14,6 @@ import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
 import android.view.MenuItem.SHOW_AS_ACTION_ALWAYS
-import android.widget.Button
 import android.widget.EditText
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
@@ -59,9 +58,7 @@ class DetailActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_detail)
         setSupportActionBar(detailActionBar)
-        detailText.isSaveFromParentEnabled = false
-        detailText.isSaveEnabled = true
-        setSupportActionBar(detailActionBar)
+        supportActionBar?.title = ""
         detailText.isSaveFromParentEnabled = false
         detailText.isSaveEnabled = true
 
@@ -76,16 +73,15 @@ class DetailActivity : AppCompatActivity() {
             val menuItem = menu?.add("삭제 하기")
             menuItem?.setIcon(R.drawable.ic_trash)
             menuItem?.setShowAsAction(SHOW_AS_ACTION_ALWAYS)
+
             menuItem?.setOnMenuItemClickListener {
                 //TODO: 삭제 작업
-                if (CheckIntent()) {
-                    tmpMemo = createTmpMemo()
-                    tmpDeleteMemo = createTmpDeleteMemo()
-                    deleteMemoFile(tmpMemo)
-                    deleteFromDB(tmpMemo.id)
-                    insertToTrashDB(tmpDeleteMemo)
-                    this.finish()
-                }
+                tmpMemo = createTmpMemo()
+                tmpDeleteMemo = createTmpDeleteMemo()
+                deleteMemoFile(tmpMemo)
+                deleteFromDB(tmpMemo.id)
+                insertToTrashDB(tmpDeleteMemo)
+                this.finish()
                 true
             }
         }
@@ -95,7 +91,6 @@ class DetailActivity : AppCompatActivity() {
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         when (item.itemId) {
             R.id.saveAction -> {
-
                 //TODO: 메모 DB 저장 기능
                 if (titleText.text.isNotEmpty() || detailText.text.isNotEmpty()) {
 
@@ -247,31 +242,33 @@ class DetailActivity : AppCompatActivity() {
 
     private fun updateDisplayTextView() {
         val tmpData = intent.getStringArrayListExtra("memoData")
-        this.titleText.setText(tmpData?.get(0))
-        this.detailText.setText(tmpData?.get(1))
+        this.titleText.setText(tmpData?.get(1))
+        this.detailText.setText(tmpData?.get(2))
     }
 
     private fun createTmpMemo(): Memo {
         lateinit var needUpdateMemo: Memo
-        if (!intent.getStringArrayListExtra("memoData").isNullOrEmpty()) {
-            val tmpArray = intent.getStringArrayListExtra("memoData") as ArrayList<String>
-            val title = tmpArray[0]
-            val text = tmpArray[1]
-            val id = tmpArray[2].toInt()
-            needUpdateMemo = Memo(id, title, text)
-        }
+
+        val tmpArray = intent.getStringArrayListExtra("memoData") as ArrayList<String>
+        val id = tmpArray[0].toInt()
+        val title = tmpArray[1]
+        val text = tmpArray[2]
+        val memo = Memo(id,title,text)
+        needUpdateMemo = Memo(memo.id, memo.title, memo.text)
+
         return needUpdateMemo
     }
 
     private fun createTmpDeleteMemo(): DeleteMemo {
         lateinit var needDeleteMemo: DeleteMemo
-        if (!intent.getStringArrayListExtra("memoData").isNullOrEmpty()) {
-            val tmpArray = intent.getStringArrayListExtra("memoData") as ArrayList<String>
-            val title = tmpArray[0]
-            val text = tmpArray[1]
-            val id = tmpArray[2].toInt()
-            needDeleteMemo = DeleteMemo(id, title, text)
-        }
+
+        val tmpArray = intent.getStringArrayListExtra("memoData") as ArrayList<String>
+        val id = tmpArray[0].toInt()
+        val title = tmpArray[1]
+        val text = tmpArray[2]
+        val memo = Memo(id, title, text)
+        needDeleteMemo = DeleteMemo(memo.id, memo.title, memo.text)
+
         return needDeleteMemo
     }
 
